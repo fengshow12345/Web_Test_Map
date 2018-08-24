@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" >
+    <title>Title</title>
+    <link rel="stylesheet" type="text/css" href="libs/jquery-easyui-1.5.5.4/themes/default/easyui.css">
+    <link rel="stylesheet" type="text/css" href="libs/jquery-easyui-1.5.5.4/themes/icon.css">
+    <script type="text/javascript" src="libs/jquery-easyui-1.5.5.4/jquery.min.js"></script>
+    <script type="text/javascript" src="libs/jquery-easyui-1.5.5.4/jquery.easyui.min.js"></script>
+
+  <script type="text/javascript" src="http://api.map.baidu.com/api?v=1.5&ak=9d3f70078fe18a2e22a484dade97e8bb&services=true"></script>
+  <script type="text/javascript" src="http://api.map.baidu.com/library/RectangleZoom/1.2/src/RectangleZoom_min.js"></script>
+
+  <!--bootstrap中js样式表-->
+  <!--<script src="js/bootstrap.js" type="text/javascript" charset="utf-8"></script>-->
+  <!--<script src="js/bootstrap.min.js" type="text/javascript" charset="utf-8"></script>-->
+
+
+
+</head>
+<body class="easyui-layout">
+  <div region="west" split="true" title="Navigator" style="width:150px;">
+    <p style="padding:5px;margin:0;">Select language:</p>
+    <ul>
+      <li><a href="javascript:void(0)" onclick="showcontent('java')">Java</a></li>
+      <li><a href="javascript:void(0)" onclick="showcontent('cshape')">C#</a></li>
+      <li><a href="javascript:void(0)" onclick="showcontent('vb')">VB</a></li>
+      <li><a href="javascript:void(0)" onclick="showcontent('erlang')">Erlang</a></li>
+    </ul>
+
+    <ul id="tt1" class="easyui-tree">
+      <li>
+        <span>Folder1</span>
+        <ul>
+          <li>
+            <span>Sub Folder 1</span>
+            <ul>
+              <li><span>File 11</span></li>
+              <li><span>File 12</span></li>
+              <li><span>File 13</span></li>
+            </ul>
+          </li>
+          <li><span>File 2</span></li>
+          <li><span>File 3</span></li>
+        </ul>
+      </li>
+      <li><span>File2</span></li>
+    </ul>
+
+<!--button-->
+    <p>
+      <label>请选择一个图片文件：</label><br />
+      <input type="file" id="file" name="files[]" multiple />
+      <br>
+      <input type="button" value="读取图像" onclick="readAsDataURL()" class="btn btn-default" />
+    </p>
+
+    <div id="result" name="result" style=" border: 0px solid #000000;left: 5px;">图片显示区</div>
+
+  </div>
+  <div id="content" region="center" title="Map" style="padding:5px;">
+  </div>
+
+  <input type="button" value="开启" onClick="myDrag.open()" />
+  <input type="button" value="关闭" onClick="myDrag.close()" />
+</body>
+</html>
+
+<script type="text/javascript">
+  var map = new BMap.Map("content");
+  var point = new BMap.Point(114.3162,30.581084);    // 创建点坐标
+  map.centerAndZoom(point, 12);
+//  var myDrag = new BMapLib.RectangleZoom(map, {
+//    followText: "拖拽鼠标进行操作"
+//  });
+  map.enableScrollWheelZoom();//启用地图滚轮放大缩小
+  <!--添加控件 -->
+  map.addControl(new BMap.NavigationControl());
+  map.addControl(new BMap.OverviewMapControl());
+  map.addControl(new BMap.MapTypeControl());   //2D图，卫星图
+  map.setCurrentCity("武汉");   //由于有3D图，需要设置城市（目前支持北京、上海、广州、深圳4个城市3D图）
+
+  var contextMenu = new BMap.ContextMenu();
+  var txtMenuItem = [
+
+    {
+      text:'放大',
+      callback:function(){map.zoomIn()}
+    },
+    {
+      text:'缩小',
+      callback:function(){map.zoomOut()}
+    },
+
+    {
+      text:'当前放大级数',
+      callback:function(){alert("地图缩放至：" + map.getZoom() + "级")}
+    },
+    {
+      text:'最大显示级数17级',
+      callback:function(){map.centerAndZoom(point,17);}
+    },
+    {
+      text:'获取该点坐标',
+      callback: function(p){
+        var px = p.lng;
+        var py = p.lat;
+        alert("该点坐标：\n经度：" + px + "; \n纬度：" + py);}
+    },
+    {
+      text:'添加标注',
+      callback:function(p){
+        var i = new BMap.Point(p.lng, p.lat)
+        var marker1 = new BMap.Marker(i);        // 创建标注
+        map.addOverlay(marker1);   // 将标注添加到地图中
+      }
+    }
+  ];
+  for(var i=0; i < txtMenuItem.length; i++){
+    contextMenu.addItem(new BMap.MenuItem(txtMenuItem[i].text,txtMenuItem[i].callback,100));
+    if(i==1||i==3) {
+      contextMenu.addSeparator();
+    }
+  }
+  map.addContextMenu(contextMenu);
+</script>
+
+<script type="text/javascript">
+  var result = document.getElementById("result");
+  var file = document.getElementById("file");
+
+  //判断浏览器是否支持FileReader接口
+  if(typeof FileReader == 'undefined')  {
+    result.InnerHTML = "<p>你的浏览器不支持FileReader接口！</p>";
+    //使选择控件不可操作
+    file.setAttribute("disabled", "disabled"); //使得之前操作失效，重新启动
+  }
+
+  function readAsDataURL() {
+    //检验是否为图像文件
+    var file = document.getElementById("file").files[0];
+    if(!/image\/\w+/.test(file.type)) {
+      alert("这不是图片文件！请检查！");
+      return false;
+    }
+    var reader = new FileReader();
+    //将文件以Data URL形式读入页面
+    reader.readAsDataURL(file);
+    reader.onload = function(e) {
+      var result = document.getElementById("result");
+      //显示文件
+      result.innerHTML = '<img src="' + this.result + '" alt=""/>';
+    }
+  }
+</script>
+<style type="text/css">
+  * {
+    margin: 0;
+    padding: 0;
+  }
+</style>

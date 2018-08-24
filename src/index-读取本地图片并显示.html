@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>读图片文件</title>
+</head>
+<!--bootstrap中css样式表-->
+<link rel="stylesheet" type="text/css" href="css/bootstrap.css" />
+<link rel="stylesheet" type="text/css" href="css/bootstrap.min.css" />
+<script type="text/javascript">
+  var result = document.getElementById("result");
+  var file = document.getElementById("file");
+
+  //判断浏览器是否支持FileReader接口
+  if(typeof FileReader == 'undefined')  {
+    result.InnerHTML = "<p>你的浏览器不支持FileReader接口！</p>";
+    //使选择控件不可操作
+    file.setAttribute("disabled", "disabled"); //使得之前操作失效，重新启动
+  }
+
+  function readAsDataURL() {
+    //检验是否为图像文件
+    var file = document.getElementById("file").files[0];
+    if(!/image\/\w+/.test(file.type)) {
+      alert("这不是图片文件！请检查！");
+      return false;
+    }
+    var reader = new FileReader();
+    //将文件以Data URL形式读入页面
+    reader.readAsDataURL(file);
+    reader.onload = function(e) {
+      var result = document.getElementById("result");
+      //显示文件
+      result.innerHTML = '<img src="' + this.result + '" alt=""/>';
+    }
+  }
+</script>
+<style type="text/css">
+  * {
+    margin: 0;
+    padding: 0;
+  }
+</style>
+
+<body>
+<div id="tbody">
+  <div >
+    <p>
+      <label>请选择一个图片文件：</label><br /><br />
+      <input type="file" id="file" class=" btn btn-default" style="height: 50px; width: 300px;text-align-last: 0;" />
+      <br>
+      <input type="button" value="读取图像" onclick="readAsDataURL()" class="btn btn-default" />
+    </p>
+  </div>
+  <div id="result" name="result" style=" border: 0px solid #000000;left: 5px;">图片显示区</div>
+</div>
+</body>
+<!--bootstrap中js样式表-->
+<script src="js/bootstrap.js" type="text/javascript" charset="utf-8"></script>
+<script src="js/bootstrap.min.js" type="text/javascript" charset="utf-8"></script>
+
+</html>

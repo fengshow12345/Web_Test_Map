@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>
+    拉框放大工具</title>
+  <script type="text/javascript" src="http://api.map.baidu.com/api?v=1.5&ak=9d3f70078fe18a2e22a484dade97e8bb&services=true"></script>
+  <script type="text/javascript" src="http://api.map.baidu.com/library/RectangleZoom/1.2/src/RectangleZoom_min.js"></script>
+</head>
+  <body>
+  <div style="width:520px;height:340px;border:1px solid gray" id="container"></div>
+    <input type="button" value="开启" onClick="myDrag.open()" />
+    <input type="button" value="关闭" onClick="myDrag.close()" />
+  </body>
+</html>
+
+  <script type="text/javascript">
+  var map = new BMap.Map("container");
+  map.centerAndZoom(new BMap.Point(114.34,30.589), 12);
+  var myDrag = new BMapLib.RectangleZoom(map, {
+    followText: "拖拽鼠标进行操作"
+  });
+
+  </script>
+
+
